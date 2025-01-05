@@ -1,15 +1,8 @@
 import { useAuth } from 'react-oidc-context';
-import { cognitoClientId, cognitoDomain, logoutUri } from './cognitoAuthConfig';
 import { Outlet } from 'react-router';
 
 function Layout() {
   const auth = useAuth();
-
-  const signOutRedirect = () => {
-    window.location.href = `${cognitoDomain}/logout?client_id=${cognitoClientId}&logout_uri=${encodeURIComponent(
-      logoutUri,
-    )}`;
-  };
 
   if (auth.isLoading) {
     return <div>Loading...</div>;
@@ -28,6 +21,8 @@ function Layout() {
         <pre> Refresh Token: {auth.user?.refresh_token} </pre>
 
         <button onClick={() => auth.removeUser()}>Sign out</button>
+
+        <Outlet />
       </div>
     );
   }
@@ -35,10 +30,6 @@ function Layout() {
   return (
     <div>
       <button onClick={() => auth.signinRedirect()}>Sign in</button>
-      <button onClick={() => signOutRedirect()}>Sign out</button>
-
-      <h1>Hello World</h1>
-
       <Outlet />
     </div>
   );
