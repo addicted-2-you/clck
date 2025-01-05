@@ -1,9 +1,8 @@
-// App.js
-
 import { useAuth } from 'react-oidc-context';
 import { cognitoClientId, cognitoDomain, logoutUri } from './cognitoAuthConfig';
+import { Outlet } from 'react-router';
 
-function App() {
+function Layout() {
   const auth = useAuth();
 
   const signOutRedirect = () => {
@@ -39,8 +38,10 @@ function App() {
       <button onClick={() => signOutRedirect()}>Sign out</button>
 
       <h1>Hello World</h1>
+
+      <Outlet />
     </div>
   );
 }
 
-export default App;
+export default Layout;
