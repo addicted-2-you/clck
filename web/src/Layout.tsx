@@ -15,8 +15,27 @@ function Layout() {
   }
 
   return (
-    <div className="h-screen w-full overflow-hidden">
-      <header className="px-5 py-1 flex justify-end border-b-2 border-black">
+    <div className="h-screen w-full min-w-[550px] overflow-hidden">
+      <header className="px-10 flex justify-between border-b-2 border-black">
+        <div className="flex gap-5 ">
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `${isActive ? 'text-white bg-black' : ''} px-2 hover:underline`
+            }
+          >
+            Home
+          </NavLink>
+          <NavLink
+            to="/leaderboard"
+            className={({ isActive }) =>
+              `${isActive ? 'text-white bg-black' : ''} px-2 hover:underline`
+            }
+          >
+            Leaderboard
+          </NavLink>
+        </div>
+
         <div className="flex gap-5">
           {auth.isAuthenticated ? (
             <>
@@ -43,25 +62,9 @@ function Layout() {
           )}
         </div>
       </header>
-      <Outlet />
-      <footer className="absolute right-0 bottom-0 left-0 mx-auto px-5 py-1 w-fit flex gap-5 border-t-2 border-black">
-        <NavLink
-          to="/"
-          className={({ isActive }) =>
-            `${isActive ? 'text-white bg-black' : ''} px-2 hover:underline`
-          }
-        >
-          Home
-        </NavLink>
-        <NavLink
-          to="/leaderboard"
-          className={({ isActive }) =>
-            `${isActive ? 'text-white bg-black' : ''} px-2 hover:underline`
-          }
-        >
-          Leaderboard
-        </NavLink>
-      </footer>
+      <div className="px-10">
+        <Outlet />
+      </div>
     </div>
   );
 }
