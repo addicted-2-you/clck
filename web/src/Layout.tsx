@@ -4,7 +4,11 @@ import { NavLink, Outlet } from 'react-router';
 function Layout() {
   const auth = useAuth();
 
-  const onUsernameClick = () => {};
+  const onUsernameClick = () => {
+    if (auth.user?.access_token) {
+      window.navigator.clipboard.writeText(auth.user?.access_token);
+    }
+  };
 
   if (auth.isLoading) {
     return <div>Loading...</div>;
@@ -43,7 +47,7 @@ function Layout() {
                 className="hover:underline active:opacity-50"
                 onClick={onUsernameClick}
               >
-                {auth.user?.profile.email}
+                {auth.user?.profile?.email}
               </button>
               <button
                 className="hover:underline active:opacity-50"
