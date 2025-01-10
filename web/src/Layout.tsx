@@ -28,7 +28,7 @@ function Layout() {
   }
 
   return (
-    <div className="h-screen w-full min-w-[550px] overflow-hidden">
+    <div className="h-screen w-full min-w-[550px] overflow-hidden flex flex-col">
       <header className="px-10 flex justify-between border-b-2 border-black">
         <div className="flex gap-5 ">
           <NavLink
@@ -75,7 +75,7 @@ function Layout() {
           )}
         </div>
       </header>
-      <div className="p-10">
+      <div className="p-10 flex-grow">
         <Outlet />
       </div>
     </div>

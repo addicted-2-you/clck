@@ -1,3 +1,17 @@
+import { useUpdateClicksMutation } from '../../services';
+
 export const HomePage = () => {
-  return <h1>Home Page</h1>;
+  const [updateClicks] = useUpdateClicksMutation();
+
+  const onClick = async () => {
+    await updateClicks({ clicksCount: 1 });
+  };
+
+  return (
+    <div className="h-full w-full flex justify-center items-center">
+      <button className="hover:underline" onClick={onClick}>
+        Click!
+      </button>
+    </div>
+  );
 };

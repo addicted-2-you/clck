@@ -23,7 +23,7 @@ export const leaderboardApi = createApi({
 
     updateClicks: builder.mutation({
       query: (userData) => ({
-        url: `leaderboard/${userData.id}`,
+        url: `ClckApp_AddUserClick`,
         method: 'PUT',
         body: userData,
       }),
