@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { NavLink, Outlet } from 'react-router';
 
@@ -9,6 +10,14 @@ function Layout() {
       window.navigator.clipboard.writeText(auth.user?.access_token);
     }
   };
+
+  useEffect(() => {
+    if (auth.user?.access_token) {
+      window.localStorage.setItem('token', auth.user.access_token);
+    } else {
+      window.localStorage.removeItem('token');
+    }
+  }, [auth.user?.access_token]);
 
   if (auth.isLoading) {
     return <div>Loading...</div>;
@@ -66,7 +75,7 @@ function Layout() {
           )}
         </div>
       </header>
-      <div className="px-10">
+      <div className="p-10">
         <Outlet />
       </div>
     </div>

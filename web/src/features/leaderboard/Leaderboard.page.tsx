@@ -1,3 +1,16 @@
+import { useGetLeaderboardQuery } from '../../services';
+import { LeaderboardTable } from './LeaderboardTable';
+
 export const LeaderboardPage = () => {
-  return <h1>Leaderboard Page</h1>;
+  const { data: leaderboard, isLoading } = useGetLeaderboardQuery({});
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      <LeaderboardTable topUsers={leaderboard.topUsers} />
+    </div>
+  );
 };
