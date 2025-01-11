@@ -23,5 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 
-cognitoAuthConfig.ts
 deploy.sh
+.env
