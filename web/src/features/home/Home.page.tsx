@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useUpdateClicksMutation } from '../../services';
 import { useDebounce } from 'use-debounce';
+
+import { useUpdateClicksMutation } from '../../services';
 
 export const HomePage = () => {
   const [clicks, setClicks] = useState(0);
