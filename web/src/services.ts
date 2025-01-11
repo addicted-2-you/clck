@@ -4,7 +4,7 @@ export const leaderboardApi = createApi({
   reducerPath: 'leaderboardApi',
   baseQuery: fetchBaseQuery({
     baseUrl: 'https://1zva7jb68a.execute-api.eu-west-1.amazonaws.com',
-    prepareHeaders: (headers, { getState }) => {
+    prepareHeaders: (headers) => {
       const token = localStorage.getItem('token');
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
