@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
 import { useUpdateClicksMutation } from '../../services';
+import { LiveClicks } from './LiveClicks';
 
 export const HomePage = () => {
   const [clicks, setClicks] = useState(0);
@@ -25,6 +26,7 @@ export const HomePage = () => {
       <button className="hover:underline" onClick={onClick}>
         Click!
       </button>
+      <LiveClicks clicksCount={clicks} />
     </div>
   );
 };
