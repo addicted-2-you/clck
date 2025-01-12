@@ -19,7 +19,7 @@ export const LeaderboardTable = ({ topUsers }: Props) => {
           <tr key={tu.userId}>
             <td className="border-[1px] border-black text-center">-</td>
             <td className="border-[1px] border-black text-center">
-              {tu.userId}
+              {tu.username}
             </td>
             <td className="border-[1px] border-black text-center">
               {tu.clicksCount}

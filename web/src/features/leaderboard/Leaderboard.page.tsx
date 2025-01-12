@@ -9,8 +9,10 @@ export const LeaderboardPage = () => {
   }
 
   return (
-    <div>
-      <LeaderboardTable topUsers={leaderboard.topUsers} />
+    <div className="flex justify-center">
+      <div className="w-2/3">
+        <LeaderboardTable topUsers={leaderboard.topUsers} />
+      </div>
     </div>
   );
 };

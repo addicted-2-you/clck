@@ -1,5 +1,6 @@
 export type UserClicks = {
   userId: string;
+  username: string;
   clicksCount: number;
 };
 
