@@ -52,12 +52,15 @@ function Layout() {
         <div className="flex gap-5">
           {auth.isAuthenticated ? (
             <>
-              <button
-                className="hover:underline active:opacity-50"
-                onClick={onUsernameClick}
-              >
-                {auth.user?.profile?.email}
-              </button>
+              {auth.user?.profile ? (
+                <button
+                  className="hover:underline active:opacity-50"
+                  onClick={onUsernameClick}
+                >
+                  {(auth.user?.profile['cognito:username'] || '') as string}
+                </button>
+              ) : null}
+
               <button
                 className="hover:underline active:opacity-50"
                 onClick={() => auth.removeUser()}
