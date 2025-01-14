@@ -1,6 +1,11 @@
 const AWS = require("aws-sdk");
 
-const { buildResponse } = require("../utils");
+const {
+  buildTopUsersParams,
+  buildCurrentUserParams,
+  buildHigherRankedParams,
+  buildResponse,
+} = require("./utils");
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
@@ -9,17 +14,7 @@ exports.handler = async (event) => {
     const { claims } = event.requestContext.authorizer.jwt;
     const { sub: userId } = claims;
 
-    const topUsersParams = {
-      TableName: "clck-user-clicks",
-      IndexName: "clicksCount-index",
-      KeyConditionExpression: "dummy = :pk",
-      ExpressionAttributeValues: {
-        ":pk": "clicks",
-      },
-      ScanIndexForward: false,
-      Limit: 10,
-    };
-
+    const topUsersParams = buildTopUsersParams();
     const topUsersResult = await dynamoDb.query(topUsersParams).promise();
     const topUsers = topUsersResult.Items;
     const currentUserIndex = topUsers.findIndex(
@@ -29,25 +24,14 @@ exports.handler = async (event) => {
     if (currentUser) {
       currentUser.position = currentUserIndex + 1;
     } else {
-      const currentUserParams = {
-        TableName: "clck-user-clicks",
-        Key: { userId },
-      };
-
+      const currentUserParams = buildCurrentUserParams({ userId });
       const currentUserResult = await dynamoDb.get(currentUserParams).promise();
       if (currentUserResult.Item) {
         currentUser = currentUserResult.Item;
 
-        const higherRankedParams = {
-          TableName: "clck-user-clicks",
-          IndexName: "clicksCount-index",
-          KeyConditionExpression: "dummy = :pk",
-          FilterExpression: "clicksCount > :clicks",
-          ExpressionAttributeValues: {
-            ":pk": "clicks",
-            ":clicks": currentUser.clicksCount || 0,
-          },
-        };
+        const higherRankedParams = buildHigherRankedParams({
+          clicksCount: currentUser.clicksCount || 0,
+        });
 
         const higherRankedResult = await dynamoDb
           .scan(higherRankedParams)

@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk");
 
-const { buildResponse } = require("../utils");
+const { buildUpdateClicksParams, buildResponse } = require("./utils");
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
@@ -19,21 +19,7 @@ exports.handler = async (event) => {
       );
     }
 
-    const params = {
-      TableName: "clck-user-clicks",
-      Key: { userId },
-      UpdateExpression:
-        "SET clicksCount = if_not_exists(clicksCount, :start) + :increment, username = :username, dummy = :dummy, updatedAt = :updatedAt",
-      ExpressionAttributeValues: {
-        ":increment": clicksCount,
-        ":start": 0,
-        ":updatedAt": new Date().toISOString(),
-        ":username": username,
-        ":dummy": "clicks",
-      },
-      ReturnValues: "UPDATED_NEW",
-    };
-
+    const params = buildUpdateClicksParams({ userId, clicksCount, username });
     const result = await dynamoDb.update(params).promise();
     return buildResponse(
       200,
