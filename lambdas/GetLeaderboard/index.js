@@ -1,5 +1,7 @@
 const AWS = require("aws-sdk");
 
+const { buildResponse } = require("../utils");
+
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = async (event) => {
@@ -9,14 +11,24 @@ exports.handler = async (event) => {
 
     const topUsersParams = {
       TableName: "clck-user-clicks",
+      IndexName: "clicksCount-index",
+      KeyConditionExpression: "dummy = :pk",
+      ExpressionAttributeValues: {
+        ":pk": "clicks",
+      },
       ScanIndexForward: false,
       Limit: 10,
     };
 
-    const topUsersResult = await dynamoDb.scan(topUsersParams).promise();
+    const topUsersResult = await dynamoDb.query(topUsersParams).promise();
     const topUsers = topUsersResult.Items;
-    let currentUser = topUsers.find((user) => user.userId === userId);
-    if (!currentUser) {
+    const currentUserIndex = topUsers.findIndex(
+      (user) => user.userId === userId
+    );
+    let currentUser = topUsers[currentUserIndex];
+    if (currentUser) {
+      currentUser.position = currentUserIndex + 1;
+    } else {
       const currentUserParams = {
         TableName: "clck-user-clicks",
         Key: { userId },
@@ -25,35 +37,48 @@ exports.handler = async (event) => {
       const currentUserResult = await dynamoDb.get(currentUserParams).promise();
       if (currentUserResult.Item) {
         currentUser = currentUserResult.Item;
+
+        const higherRankedParams = {
+          TableName: "clck-user-clicks",
+          IndexName: "clicksCount-index",
+          KeyConditionExpression: "dummy = :pk",
+          FilterExpression: "clicksCount > :clicks",
+          ExpressionAttributeValues: {
+            ":pk": "clicks",
+            ":clicks": currentUser.clicksCount || 0,
+          },
+        };
+
+        const higherRankedResult = await dynamoDb
+          .scan(higherRankedParams)
+          .promise();
+        const userRank = higherRankedResult.Count + 1;
+        currentUser.position = userRank;
+      } else {
+        currentUser = null;
       }
     }
 
-    return {
-      statusCode: 200,
-      headers: {
+    return buildResponse(
+      200,
+      {
         "Access-Control-Allow-Origin": event.headers.origin,
-        "Access-Control-Allow-Credentials": true,
-        "Access-Control-Allow-Methods": "GET,PUT,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
       },
-      body: JSON.stringify({
+      {
         message: "Fetched top users successfully",
-        topUsers,
+        topUsers: topUsers.map((tu, index) => ({ ...tu, position: index + 1 })),
         currentUser,
-      }),
-    };
+      }
+    );
   } catch (error) {
     console.error("Error fetching top users:", error);
 
-    return {
-      statusCode: 500,
-      headers: {
+    return buildResponse(
+      500,
+      {
         "Access-Control-Allow-Origin": event.headers.origin,
-        "Access-Control-Allow-Credentials": true,
-        "Access-Control-Allow-Methods": "GET,PUT,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
       },
-      body: JSON.stringify({ error: "Internal Server Error" }),
-    };
+      { error: "Internal Server Error" }
+    );
   }
 };

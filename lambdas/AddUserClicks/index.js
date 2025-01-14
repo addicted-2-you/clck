@@ -1,67 +1,58 @@
 const AWS = require("aws-sdk");
 
+const { buildResponse } = require("../utils");
+
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 exports.handler = async (event) => {
   try {
     const { claims } = event.requestContext.authorizer.jwt;
     const { sub: userId, username } = claims;
-
     const { clicksCount } = JSON.parse(event.body);
     if (!clicksCount || typeof clicksCount !== "number") {
-      return {
-        statusCode: 400,
-        headers: {
+      return buildResponse(
+        400,
+        {
           "Access-Control-Allow-Origin": event.headers.origin,
-          "Access-Control-Allow-Credentials": true,
-          "Access-Control-Allow-Methods": "GET,PUT,OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type,Authorization",
         },
-        body: JSON.stringify({ error: "Invalid clicksCount value" }),
-      };
+        { error: "Invalid clicksCount value" }
+      );
     }
 
     const params = {
       TableName: "clck-user-clicks",
       Key: { userId },
       UpdateExpression:
-        "SET clicksCount = if_not_exists(clicksCount, :start) + :increment, username = :username, updatedAt = :updatedAt",
+        "SET clicksCount = if_not_exists(clicksCount, :start) + :increment, username = :username, dummy = :dummy, updatedAt = :updatedAt",
       ExpressionAttributeValues: {
         ":increment": clicksCount,
         ":start": 0,
         ":updatedAt": new Date().toISOString(),
         ":username": username,
+        ":dummy": "clicks",
       },
       ReturnValues: "UPDATED_NEW",
     };
 
     const result = await dynamoDb.update(params).promise();
-
-    return {
-      statusCode: 200,
-      headers: {
+    return buildResponse(
+      200,
+      {
         "Access-Control-Allow-Origin": event.headers.origin,
-        "Access-Control-Allow-Credentials": true,
-        "Access-Control-Allow-Methods": "GET,PUT,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
       },
-      body: JSON.stringify({
+      {
         message: "Clicks count incremented successfully",
         updatedAttributes: result.Attributes,
-      }),
-    };
+      }
+    );
   } catch (error) {
     console.error("Error processing request:", error);
-
-    return {
-      statusCode: 500,
-      headers: {
+    return buildResponse(
+      500,
+      {
         "Access-Control-Allow-Origin": event.headers.origin,
-        "Access-Control-Allow-Credentials": true,
-        "Access-Control-Allow-Methods": "GET,PUT,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
       },
-      body: JSON.stringify({ error: "Internal Server Error" }),
-    };
+      { error: "Internal Server Error" }
+    );
   }
 };
