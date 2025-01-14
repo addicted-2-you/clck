@@ -9,7 +9,7 @@ export const LeaderboardTable = ({ topUsers }: Props) => {
     <table className="max-h-full w-full overflow-y-auto">
       <thead>
         <tr>
-          <th className="border-[1px] border-black text-center">Pos</th>
+          <th className="border-[1px] border-black text-center">Position</th>
           <th className="border-[1px] border-black text-center">User</th>
           <th className="border-[1px] border-black text-center">Clicks</th>
         </tr>
@@ -17,7 +17,9 @@ export const LeaderboardTable = ({ topUsers }: Props) => {
       <tbody>
         {topUsers.map((tu) => (
           <tr key={tu.userId}>
-            <td className="border-[1px] border-black text-center">-</td>
+            <td className="border-[1px] border-black text-center">
+              {tu.position}
+            </td>
             <td className="border-[1px] border-black text-center">
               {tu.username}
             </td>
