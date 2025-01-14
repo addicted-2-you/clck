@@ -1,4 +1,10 @@
-const AWS = require("aws-sdk");
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const {
+  DynamoDBDocumentClient,
+  QueryCommand,
+  GetCommand,
+  ScanCommand,
+} = require("@aws-sdk/lib-dynamodb");
 
 const {
   buildTopUsersParams,
@@ -7,7 +13,8 @@ const {
   buildResponse,
 } = require("./utils");
 
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const client = new DynamoDBClient({});
+const dynamoDb = DynamoDBDocumentClient.from(client);
 
 exports.handler = async (event) => {
   try {
@@ -15,7 +22,9 @@ exports.handler = async (event) => {
     const { sub: userId } = claims;
 
     const topUsersParams = buildTopUsersParams();
-    const topUsersResult = await dynamoDb.query(topUsersParams).promise();
+    const topUsersResult = await dynamoDb.send(
+      new QueryCommand(topUsersParams)
+    );
     const topUsers = topUsersResult.Items;
     const currentUserIndex = topUsers.findIndex(
       (user) => user.userId === userId
@@ -25,7 +34,9 @@ exports.handler = async (event) => {
       currentUser.position = currentUserIndex + 1;
     } else {
       const currentUserParams = buildCurrentUserParams({ userId });
-      const currentUserResult = await dynamoDb.get(currentUserParams).promise();
+      const currentUserResult = await dynamoDb.send(
+        new GetCommand(currentUserParams)
+      );
       if (currentUserResult.Item) {
         currentUser = currentUserResult.Item;
 
@@ -33,9 +44,9 @@ exports.handler = async (event) => {
           clicksCount: currentUser.clicksCount || 0,
         });
 
-        const higherRankedResult = await dynamoDb
-          .scan(higherRankedParams)
-          .promise();
+        const higherRankedResult = await dynamoDb.send(
+          new ScanCommand(higherRankedParams)
+        );
         const userRank = higherRankedResult.Count + 1;
         currentUser.position = userRank;
       } else {

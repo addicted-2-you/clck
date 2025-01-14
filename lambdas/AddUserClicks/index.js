@@ -1,8 +1,13 @@
-const AWS = require("aws-sdk");
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const {
+  DynamoDBDocumentClient,
+  UpdateCommand,
+} = require("@aws-sdk/lib-dynamodb");
 
 const { buildUpdateClicksParams, buildResponse } = require("./utils");
 
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const client = new DynamoDBClient({});
+const dynamoDb = DynamoDBDocumentClient.from(client);
 
 exports.handler = async (event) => {
   try {
@@ -20,7 +25,7 @@ exports.handler = async (event) => {
     }
 
     const params = buildUpdateClicksParams({ userId, clicksCount, username });
-    const result = await dynamoDb.update(params).promise();
+    const result = await dynamoDb.send(new UpdateCommand(params));
     return buildResponse(
       200,
       {
